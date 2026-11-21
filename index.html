@@ -132,7 +132,7 @@ button:focus-visible { outline: 2px solid var(--lemon); outline-offset: 2px; }
 
 /* Ending: envelope, cake, card (copied look from Viaggettino) */
 #ending { position: absolute; inset: 0; z-index: 50; overflow-y: auto; background: #2a1f45; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: calc(18px + var(--sat)) max(16px, var(--sar)) calc(28px + var(--sab)) max(16px, var(--sal)); }
-#end-cake { width: min(100%, 520px); aspect-ratio: 260 / 140; image-rendering: pixelated; border: 3px solid var(--ink); border-radius: 12px; flex: none; }
+#end-cake { display: block; object-fit: cover; background: #1d1430; width: min(100%, 520px); aspect-ratio: 260 / 140; image-rendering: pixelated; border: 3px solid var(--ink); border-radius: 12px; flex: none; }
 .end-card { width: min(100%, 520px); background: var(--paper); color: var(--paper-ink); border-radius: 14px; padding: 20px 20px 18px; box-shadow: 0 0 0 3px var(--paper-ink), 8px 8px 0 var(--coral); }
 .end-card h2 { margin: 0 0 10px; font-size: clamp(26px, 7vw, 40px); line-height: 1; color: var(--red); text-wrap: balance; }
 .end-card p { margin: 0; font-family: var(--f-body); font-size: 25px; line-height: 1.12; text-wrap: pretty; }
@@ -1262,6 +1262,10 @@ const Audio = window.VGAudio = (() => {
     auguri: { bpm: 220, legato: true, lead: T('r . . . . . . . G4 . . G4  A4 . . . G4 . . . C5 . . .  B4 . . . . . . . G4 . . G4  A4 . . . G4 . . . D5 . . .  C5 . . . . . . . G4 . . G4  G5 . . . E5 . . . C5 . . .  B4 . . . A4 . . . F5 . . F5  E5 . . . C5 . . . D5 . . .  C5 . . . . . . . . . . r'),
       bass: T('. . . . . . . . . . . .  C3 . . . G3 . . . E3 . . .  G2 . . . F3 . . . B2 . . .  G2 . . . F3 . . . B2 . . .  C3 . . . G3 . . . E3 . . .  C3 . . . G3 . . . E3 . . .  F2 . . . C3 . . . A2 . . .  C3 . . . G3 . . . G2 . . .  C3 . . . G3 . . . E3 . . .'),
       drum: T('k . . . h . . . h . . .'), lv: 0.06 },
+    // The celebration at the end, for every occasion without a song of its own (original, written for Memory Lane)
+    celebra: { bpm: 132, legato: true, lead: T('G4 . C5 . E5 . G5 .  C6 . . . G5 . . .  A5 . G5 . F5 . E5 .  D5 . . . G5 . . .  E5 . G5 . C6 . E6 .  D6 . C6 . B5 . A5 .  G5 . E5 . F5 . D5 .  C5 . . . C6 . . r'),
+      bass: T('C3 . G3 . C3 . G3 .  C3 . G3 . E3 . G3 .  F2 . C3 . F2 . C3 .  G2 . D3 . G2 . B2 .  C3 . G3 . C3 . G3 .  F2 . C3 . F3 . C3 .  G2 . D3 . G2 . D3 .  C3 . G3 . C3 . . .'),
+      drum: T('k . h . s . h h'), lv: 0.05 },
     // Party music for the festa on Viale Ippocrate (original, written for the game)
     festa: { bpm: 118, lead: T('C5 . E5 . G5 . E5 .  F5 . A5 . G5 . . .  E5 . G5 . C6 . G5 .  A5 . G5 . E5 . . .  D5 . F5 . A5 . F5 .  G5 . F5 . D5 . . .  E5 . D5 . C5 . E5 .  D5 . . . . . . .  C5 . E5 . G5 . E5 .  F5 . A5 . C6 . A5 .  G5 . E5 . C5 . E5 .  F5 . E5 . D5 . . .  B4 . D5 . G5 . F5 .  E5 . D5 . C5 . A4 .  G4 . B4 . D5 . B4 .  C5 . . . . . . .'),
       bass: T('C3 . G3 . E3 . G3 .  F2 . C3 . A2 . C3 .  C3 . G3 . E3 . G3 .  A2 . E3 . C3 . E3 .  D3 . A3 . F3 . A3 .  G2 . D3 . B2 . D3 .  C3 . G3 . E3 . G3 .  G2 . D3 . B2 . D3 .  C3 . G3 . E3 . G3 .  F2 . C3 . A2 . C3 .  C3 . G3 . E3 . G3 .  D3 . A3 . F3 . A3 .  G2 . D3 . B2 . D3 .  A2 . E3 . C3 . E3 .  G2 . D3 . B2 . D3 .  C3 . G3 . C3 . . .'),
@@ -1752,9 +1756,10 @@ const VG = (() => {
 
   // ---------- the ending: envelope, cake with salamini, card with the dedication ----------
   const DEDICA = {
-    title: 'Buon compleanno!',
-    text: 'Tanti auguri Falconcino. Affrontare questa avventura insieme a te mi ha fatto venire voglia di viverne altre mille, e di affrontarle insieme come se fossero un gioco. Ma nel frattempo mangiamoci un salamino e festeggiamo!',
-    sign: 'Il Crocco'
+    title: 'Mi manchi tanto!',
+    // a poem: one line per rhyme («\n» starts a new line)
+    text: "Oh mio caro Falconcino,\nil più bello il più carino.\nSarò solo una crocchetta,\npanatura un po' imperfetta.\nPerò senza imperfezione\nc'è soltanto il mio Falcone,\nche per quanto è allenato,\nè pur sempre un bel pelato.",
+    sign: 'Il Croccolo'
   };
   function ending(opts) {
     opts = opts || {};
@@ -1770,24 +1775,29 @@ const VG = (() => {
         </div>
         <p class="env-hint">Per El Falcon · tocca per aprire</p>
       </div>
-      <canvas id="end-cake" width="260" height="140"></canvas>
+      <video id="end-cake" src="scena-anniversario.mp4" muted loop playsinline preload="auto" aria-hidden="true" disablepictureinpicture></video>
       <div class="end-card"><h2>${DEDICA.title}</h2><p>${DEDICA.text}</p><div class="sign">${DEDICA.sign}</div></div>
       <p id="end-stats"></p>
       <div id="end-btns"></div>`;
     (byId('app') || document.body).appendChild(box);
     byId('end-stats').textContent = opts.stats || '';
     (opts.buttons || []).forEach(b => { const btn = el('button', 'btn' + (b.primary ? ' primary' : ''), b.label); btn.type = 'button'; btn.onclick = b.onClick; byId('end-btns').appendChild(btn); });
-    // silence while the envelope is closed: «Tanti auguri» starts the moment it opens
+    // the font of the letter must be ready before its lines are measured (it is loaded while the envelope waits)
+    try { const lp = box.querySelector('.end-card p'); if (document.fonts && lp) { const cs = getComputedStyle(lp); document.fonts.load(`${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`).catch(() => { }); } } catch (e) { }
+    // silence while the envelope is closed: the celebration starts the moment it opens
     Audio.stop();
     const env = byId('end-env'); let opened = false; const timers = [];
     // the dedication is written one line at a time, like by hand: each line as long as its words
     const writeLines = card => {
       const p = card.querySelector('p'), h2 = card.querySelector('h2'), sign = card.querySelector('.sign');
       if (!p || p.dataset.lined) return; p.dataset.lined = '1';
-      const words = p.textContent.trim().split(/\s+/);
-      p.innerHTML = words.map(w => `<span class="w">${w}</span>`).join(' ');
-      const lines = []; let top = null;
-      p.querySelectorAll('.w').forEach(w => { if (w.offsetTop !== top) { lines.push([]); top = w.offsetTop; } lines[lines.length - 1].push(w.textContent); });
+      const verses = p.textContent.trim().split(/\n+/).map(v => v.trim()).filter(Boolean);
+      const lines = [];
+      verses.forEach(v => {
+        p.innerHTML = v.split(/\s+/).map(w => `<span class="w">${w}</span>`).join(' ');
+        let top = null;
+        p.querySelectorAll('.w').forEach(w => { if (w.offsetTop !== top) { lines.push([]); top = w.offsetTop; } lines[lines.length - 1].push(w.textContent); });
+      });
       p.innerHTML = lines.map(l => `<span class="ln">${l.join(' ')}</span>`).join('');
       let t = 0.5; // after the title
       const per = REDUCED ? 0 : 0.011; // seconds per letter
@@ -1796,6 +1806,9 @@ const VG = (() => {
       card.dataset.done = String(t + 0.8);
       if (!REDUCED) { const cake = box.querySelector('#end-cake'), stats = box.querySelector('#end-stats'), btns = box.querySelector('#end-btns'); [cake, stats, btns].forEach((e2, k) => { if (e2) e2.style.animationDelay = (t + 0.7 + k * 0.25) + 's'; }); }
       if (h2) h2.style.animationDelay = '.1s';
+      // the scene starts from the beginning when it appears under the letter, then loops
+      const vid = box.querySelector('video#end-cake');
+      if (vid) setTimeout(() => { try { vid.currentTime = 0; const pl = vid.play(); if (pl && pl.catch) pl.catch(() => { }); } catch (e) { } }, (parseFloat(vid.style.animationDelay) || 0) * 1000);
     };
     // the paper that rose out of the envelope zooms to the size of the card; then the writing appears on it
     let morph = null;
@@ -1805,7 +1818,7 @@ const VG = (() => {
       box.appendChild(morph); env.querySelector('.env-letter').style.visibility = 'hidden';
     };
     const reveal = () => {
-      if (opened) return; opened = true; timers.forEach(clearTimeout); Audio.play('auguri');
+      if (opened) return; opened = true; timers.forEach(clearTimeout); Audio.play('celebra');
       env.hidden = true; box.classList.remove('env-mode'); box.classList.add('reveal'); box.scrollTop = 0; Audio.sfx('ticket');
       const card = box.querySelector('.end-card');
       if (!morph) { writeLines(card); box.classList.add('lettered'); return; }
@@ -1820,7 +1833,7 @@ const VG = (() => {
     box.classList.add('env-mode');
     env.onclick = () => {
       if (REDUCED) { reveal(); return; }
-      if (!env.classList.contains('open')) Audio.play('auguri');
+      if (!env.classList.contains('open')) Audio.play('celebra');
       // the seal breaks, the flap opens, the letter rises out; then the envelope drops away and the letter unfolds
       if (!env.classList.contains('open')) { env.classList.add('open'); Audio.sfx('pick'); timers.push(setTimeout(() => Audio.sfx('door'), 280)); timers.push(setTimeout(() => { startMorph(); env.classList.add('out'); }, 1750)); timers.push(setTimeout(reveal, 2250)); } else reveal();
     };
@@ -1841,38 +1854,6 @@ const VG = (() => {
       timers.push(setTimeout(() => { box.classList.add('landed'); try { env.focus({ preventScroll: true }); } catch (e) { } }, 780));
     }
     else setTimeout(() => { try { env.focus({ preventScroll: true }); } catch (e) { } }, 50);
-    // the cake scene (same as Viaggettino's ending)
-    const cv2 = byId('end-cake'), c = cv2.getContext('2d'); c.imageSmoothingEnabled = false;
-    const sal = item('salamino', 1, false);
-    const conf = Array.from({ length: REDUCED ? 0 : 60 }, () => ({ x: Math.random() * cv2.width, y: Math.random() * cv2.height, v: 10 + Math.random() * 25, c: pick(['#ffd84a', '#ff6b57', '#7cc6e8', '#f2a3b0', '#7fd18a']) }));
-    let last = performance.now();
-    const frame = now => {
-      if (!document.body.contains(box)) return;
-      const dt = Math.min(0.05, (now - last) / 1000); last = now; const t = now / 1000;
-      const W = cv2.width, H = cv2.height;
-      const grd = c.createLinearGradient(0, 0, 0, H); grd.addColorStop(0, '#ff9a6b'); grd.addColorStop(0.55, '#f2a3b0'); grd.addColorStop(0.56, '#3a2a5a'); grd.addColorStop(1, '#2a1f45');
-      c.fillStyle = grd; c.fillRect(0, 0, W, H);
-      c.fillStyle = '#ffd84a'; c.beginPath(); c.arc(W / 2, H * 0.55, 22, Math.PI, 0); c.fill();
-      c.fillStyle = 'rgba(255,216,74,.5)'; for (let i = 0; i < 5; i++) c.fillRect(W / 2 - 30 + i * 3, H * 0.58 + i * 4, 60 - i * 6, 1);
-      c.fillStyle = '#e9c46a'; c.fillRect(W / 2 - 70, H - 34, 140, 8); c.fillStyle = '#6b4a2e'; c.fillRect(W / 2 - 4, H - 26, 8, 26);
-      const cx = W / 2 - 26, cy = H - 60;
-      c.fillStyle = '#fff6e0'; c.fillRect(cx, cy + 10, 52, 16); c.fillStyle = '#f2a3b0'; c.fillRect(cx, cy + 10, 52, 4);
-      for (let i = 0; i < 6; i++) c.fillRect(cx + 2 + i * 9, cy + 14, 4, 3);
-      c.fillStyle = '#e9e2cf'; c.fillRect(cx - 4, cy + 26, 60, 2);
-      for (let i = 0; i < 26; i++) {
-        const row = i < 13 ? 0 : 1, col = i % 13, x = cx + 2 + col * 4, y = cy + 4 + (row ? 3 : 0);
-        c.fillStyle = ['#7cc6e8', '#ffd84a', '#ff6b57', '#7fd18a'][i % 4]; c.fillRect(x, y + (row ? 0 : -3), 1, 6);
-        c.fillStyle = Math.sin(t * 12 + i) > 0 ? '#ffd84a' : '#ffb36b'; c.fillRect(x, y + (row ? -2 : -5), 1, 2);
-      }
-      c.fillStyle = '#ffffff'; c.beginPath(); c.ellipse(W / 2 + 50, H - 36, 18, 4, 0, 0, 7); c.fill();
-      for (let i = 0; i < 3; i++) c.drawImage(sal, W / 2 + 36 + i * 9, H - 46 - (i % 2) * 2);
-      c.fillStyle = '#ffd84a'; c.fillRect(W / 2 - 58, H - 46, 5, 10); c.fillStyle = '#ff8a3d'; c.fillRect(W / 2 - 48, H - 46, 5, 10);
-      const f = falcon('right'), k = crocco('left');
-      c.drawImage(f, W / 2 - 100, H - 34 - f.height); c.drawImage(k, W / 2 + 76, H - 34 - k.height);
-      conf.forEach(p => { p.y += p.v * dt; p.x += Math.sin(t * 2 + p.v) * 0.3; if (p.y > H) { p.y = -4; p.x = Math.random() * W; } c.fillStyle = p.c; c.fillRect(Math.round(p.x), Math.round(p.y), 2, 2); });
-      requestAnimationFrame(frame);
-    };
-    requestAnimationFrame(frame);
     return box;
   }
 
@@ -2046,7 +2027,7 @@ const VG = (() => {
   CHAPTERS.forEach(ch => { ch.name = cardName(ch.place); });
   const COLLECTION = CHAPTERS.flatMap(ch => ch.cards);
   // TEST: a «Vinci» button during play and every chapter open. Only for Marco's checks: set to false before delivery.
-  const TEST = true;
+  const TEST = false;
   // where the progress is saved on the phone: one name per game (for a client's copy: 'memorylane-<code>')
   const SAVE_KEY = 'memorylane';
   const chapterOf = id => CHAPTERS.findIndex(ch => ch.cards.includes(id));
