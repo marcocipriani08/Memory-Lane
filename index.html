@@ -605,7 +605,7 @@ button:focus-visible { outline: 2px solid var(--lemon); outline-offset: 2px; }
   #dlg-shield[hidden] { display: none; }
   /* the guastafeste's note where the photo should be */
   .ex-frame.stolen { background: #f6efe0; }
-  .ex-frame.stolen .ex-note { position: absolute; left: 14%; right: 14%; top: 18%; padding: 10px 8px; background: #d9d6e0; color: #2a2d36; border: 2px solid #2a2d36; border-radius: 3px; transform: rotate(4deg); box-shadow: 3px 3px 0 rgba(42,26,46,.3); font-family: var(--f-hand); font-size: 22px; line-height: 1; animation: noteSway 2.6s ease-in-out infinite; }
+  .ex-frame.stolen .ex-note { position: absolute; left: 14%; right: 14%; top: 22%; bottom: 22%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 10px 8px; background: #d9d6e0; color: #2a2d36; border: 2px solid #2a2d36; border-radius: 3px; transform: rotate(4deg); box-shadow: 3px 3px 0 rgba(42,26,46,.3); font-family: var(--f-hand); font-size: 22px; line-height: 1; animation: noteSway 2.6s ease-in-out infinite; }
   .ex-frame.stolen .ex-note small { display: block; margin-top: 4px; font-size: 15px; color: #5d6270; }
   .ex-frame.stolen .ex-note::before { content: ""; position: absolute; left: 50%; top: -6px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--red); border: 2px solid #2a2d36; }
   @keyframes noteSway { 50% { transform: rotate(1deg) translateY(-2px); } }
@@ -2246,7 +2246,9 @@ const VG = (() => {
   // G.sess changes whenever a page starts or is left: code still waiting from an older page stops there
   const G = { page: 0, mode: 'story', sess: 0, deck: [], open: [], lock: true, moves: 0, found: 0, pairs: 0, combo: 0, misses: 0, hints: 0, t0: 0, playing: false, stars: 3, pestDone: false, pestN: 0, pestMs: 0 };
   // stars for a page: 3 up to pairs × 1.5 moves, 2 up to pairs × 2, then 1. The Rivincita has its own limits.
-  const starsFor = (moves, pairs) => G.mode === 'rev' ? (moves <= REV.star3 ? 3 : moves <= REV.star2 ? 2 : 1) : moves <= pairs + Math.ceil(pairs * 0.5) ? 3 : moves <= pairs * 2 ? 2 : 1;
+  // 3 stars: chapters 1-2 within one and a half moves per pair; chapter 3 within 16 moves, chapter 4 within 22 (Marco, 22 November)
+  const STAR3 = { 2: 16, 3: 22 };
+  const starsFor = (moves, pairs) => G.mode === 'rev' ? (moves <= REV.star3 ? 3 : moves <= REV.star2 ? 2 : 1) : moves <= (G.mode === 'story' && STAR3[G.page] || pairs + Math.ceil(pairs * 0.5)) ? 3 : moves <= pairs * 2 ? 2 : 1;
   // play time without the guastafeste's scenes (the clock stops while he is on)
   const playSecs = () => (performance.now() - G.t0 - G.pestMs) / 1000;
   const clock = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
@@ -2862,7 +2864,7 @@ const VG = (() => {
       const n = missionsDone(), have = !!save.photo, met = !!save.villainMet;
       extra = el('section', 'album-sec album-extra' + (introNew ? ' fresh' : ''));
       extra.innerHTML = `<div class="sec-head"><p class="album-ch">${have ? 'L\'ultima foto' : 'Manca una foto…'}</p>${met ? `<span class="st">${n}/${MISSIONS.length}</span>` : ''}</div>
-        <button class="ex-frame${have ? ' got' : ' stolen'}" type="button" aria-label="${have ? 'Guarda l\'ultima foto' : 'Leggi il biglietto'}"><canvas width="96" height="64"></canvas>${have ? `<span>${FINAL.name}</span>` : `<span class="ex-note">«${PEST.note}»<small>— ${PEST.name}</small></span>`}</button>
+        <button class="ex-frame${have ? ' got' : ' stolen'}" type="button" aria-label="${have ? 'Guarda l\'ultima foto' : 'Leggi il biglietto'}"><canvas width="96" height="64"></canvas>${have ? `<span>${FINAL.name}</span>` : `<span class="ex-note">«${PEST.note}»</span>`}</button>
         <p class="ex-sub">${have ? 'Tocca la foto per rileggere il biglietto.' : met ? `Supera le sfide ${PEST.of} per riaverla.` : 'Al posto della foto c\'è un biglietto. Toccalo.'}</p>`;
       const fr = extra.querySelector('.ex-frame');
       if (have) paintCouple(fr.querySelector('canvas')); else { const c2 = fr.querySelector('canvas').getContext('2d'); c2.fillStyle = '#e6e2d6'; c2.fillRect(0, 0, 96, 64); }
